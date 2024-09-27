@@ -20,9 +20,7 @@ function SignIn() {
         if (res.payload?.body?.token) {
           if (rememberMe) {
             localStorage.setItem('token', res.payload.body.token);
-          } else {
-            sessionStorage.setItem('token', res.payload.body.token);
-          }
+          } 
         }
       });
   };
@@ -31,7 +29,7 @@ function SignIn() {
     console.log("Token:", token); 
     // Si l'utilisateur est authentifié, redirige vers la page protégée
     if (token) {
-      navigate('/user'); // Remplace '/protectedPage' par ta route
+      navigate('/user'); 
     }
   }, [token, navigate]); // Le hook s'active lorsque le token change
   

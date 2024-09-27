@@ -4,33 +4,39 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchUserData, updateUserName } from "../store/authSlice"; //import des actions
 import { useEffect, useState } from "react";
 import Input from "../components/Input";
+import { useNavigate } from "react-router-dom";
 
 function User() {
   const dispatch = useDispatch();
-  const { token, user } = useSelector((state) => state.auth); // Récupération des infos utilisateur depuis le store
+  const { token, profile } = useSelector((state) => state.auth); // Récupération des infos utilisateur depuis le store
   const [isEditing, setIsEditing] = useState(false); // État pour savoir si on est en mode édition
-  const [newUserName, setNewUserName] = useState(user ? user.userName : ""); // Stockage du nouveau username
+  const [newUserName, setNewUserName] = useState(
+    profile ? profile.userName : ""
+  ); // Stockage du nouveau username
 
+  const storedToken =
+    localStorage.getItem("token") || sessionStorage.getItem("token") || token;
+
+  // Utilisation de useEffect pour récupérer les données utilisateur uniquement lorsque le composant est monté
   useEffect(() => {
-    const storedToken =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (storedToken && !token) {
-      // Si un token est trouvé dans le stockage, mais qu'il n'est pas encore dans le store
-      dispatch(fetchUserData(storedToken)); // Récupère les données utilisateur avec le token
+    if (storedToken && !profile) {
+      // Récupère les données utilisateur uniquement si elles ne sont pas déjà dans le state
+      dispatch(fetchUserData(storedToken));
     }
-  }, [dispatch, token]);
-
+  }, [dispatch, storedToken, profile]); // Cette dépendance permet de ne pas rappeler la fonction si user est déjà dans le state
   // Fonction pour basculer vers le mode édition
   const handleEditClick = () => {
     setIsEditing(true);
-    setNewUserName(user.userName); // Pré-remplir le champ avec le username actuel
+    setNewUserName(profile.userName); // Pré-remplir le champ avec le username actuel
   };
 
   // Fonction pour sauvegarder les modifications
   const handleSaveClick = async () => {
-    if (newUserName !== user.userName) {
+    if (newUserName !== profile.userName) {
       try {
-        await dispatch(updateUserName({ token, newUserName })).unwrap(); // Appel API pour mettre à jour le userName
+        await dispatch(
+          updateUserName({ token: storedToken, newUserName })
+        ).unwrap(); // Appel API pour mettre à jour le userName
         console.log("Nouveau userName sauvegardé :", newUserName);
       } catch (error) {
         console.error("Erreur lors de la mise à jour du userName :", error);
@@ -43,7 +49,12 @@ function User() {
   const handleCancelClick = () => {
     setIsEditing(false); // Quitter le mode édition sans sauvegarder
   };
-
+  const navigate = useNavigate(); // Hook pour la redirection
+  useEffect(() => {
+    if (!storedToken) {
+      navigate("/sign-in");
+    }
+  }, [storedToken, navigate]);
   return (
     <main className="main bg-dark">
       <div className="header">
@@ -67,7 +78,7 @@ function User() {
                 typeInput={`text`}
                 idInput={`firstname`}
                 textLabel={`First Name`}
-                value={user.firstName}
+                value={profile.firstName}
                 classInput={`input-edit`}
                 readOnly
               />
@@ -77,7 +88,7 @@ function User() {
                 typeInput={`text`}
                 idInput={`lastname`}
                 textLabel={`Last Name`}
-                value={user.lastName}
+                value={profile.lastName}
                 classInput={`input-edit`}
                 readOnly
               />
@@ -104,7 +115,7 @@ function User() {
             <h1>
               Welcome back
               <br />
-              {user ? `${user.firstName} ${user.lastName}` : "User"}
+              {profile ? `${profile.firstName} ${profile.lastName}` : "User"}
             </h1>
             <button className="edit-button" onClick={handleEditClick}>
               Edit Name

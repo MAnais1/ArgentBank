@@ -22,59 +22,66 @@ export const login = createAsyncThunk(
   }
 );
 
-
 //Action pour récupérer les données utilisateur
-export const fetchUserData = createAsyncThunk('auth/fetchUserData', async (token) => {
-  const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to fetch user data');
+export const fetchUserData = createAsyncThunk(
+  "auth/fetchUserData",
+  async (token) => {
+    const response = await fetch("http://localhost:3001/api/v1/user/profile", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch user data");
+    }
+    console.log("User data fetched:", data.body);
+
+    return data.body; // Retourne les données utilisateur
   }
-  console.log("User data fetched:", data.body);
-  return data.body; // Retourne les données utilisateur
-});
+);
 
 // Nouvelle action pour mettre à jour le userName
-export const updateUserName = createAsyncThunk('auth/updateUserName', async ({ token, newUserName }) => {
-  const response = await fetch('http://localhost:3001/api/v1/user/profile', {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ userName: newUserName }),
-  });
-  const data = await response.json();
+export const updateUserName = createAsyncThunk(
+  "auth/updateUserName",
+  async ({ token, newUserName }) => {
+    const response = await fetch("http://localhost:3001/api/v1/user/profile", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userName: newUserName }),
+    });
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to update userName');
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to update userName");
+    }
+    console.log("Token update", token);
+
+    console.log("Updated user data:", data.body);
+    return data.body; // Retourne les nouvelles données utilisateur
   }
-  
-  console.log("Updated user data:", data.body);
-  return data.body; // Retourne les nouvelles données utilisateur
-});
-
+);
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
     token: null,
+    profile: null,
     status: "idle",
     error: null,
   },
   reducers: {
     logout: (state) => {
-      state.user = null;
+      state.profile = null;
       state.token = null;
-      localStorage.removeItem('token');  // Supprime le token si l'utilisateur se déconnecte
-      sessionStorage.removeItem('token');  // Supprime le token si l'utilisateur se déconnecte
+      localStorage.removeItem("token"); // Supprime le token si l'utilisateur se déconnecte
+      sessionStorage.removeItem("token"); // Supprime le token si l'utilisateur se déconnecte
+      localStorage.removeItem("profile"); // Supprime user si l'utilisateur se déconnecte
     },
   },
   extraReducers: (builder) => {
@@ -83,18 +90,20 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.token = action.payload.body.token;
-        
+       
+
         // Gère le stockage du token
         if (action.meta.arg.rememberMe) {
-          localStorage.setItem('token', state.token);
+          localStorage.setItem("token", state.token);
         } else {
-          sessionStorage.setItem('token', state.token);
+          sessionStorage.setItem("token", state.token);
         }
       })
       // Gestion de la récupération des données utilisateur
       .addCase(fetchUserData.fulfilled, (state, action) => {
-        state.user = action.payload; // Assigne les données utilisateur récupérées
-        console.log("Redux state after fetching user data:", state.user);
+        state.status = "succeeded";
+        state.profile = action.payload; // Assigne les données utilisateur récupérées
+        console.log("profile data in state:", state.profile);
       })
       .addCase(fetchUserData.rejected, (state, action) => {
         state.error = action.error.message;
@@ -102,8 +111,8 @@ const authSlice = createSlice({
       })
       // Gestion de la mise à jour du userName
       .addCase(updateUserName.fulfilled, (state, action) => {
-        state.user.userName = action.payload.userName; // Mise à jour du userName
-        console.log("UserName updated:", state.user.userName);
+        state.profile.userName = action.payload.userName; // Mise à jour du userName
+        console.log("UserName updated:", state.profile.userName);
       })
       .addCase(updateUserName.rejected, (state, action) => {
         state.error = action.error.message;

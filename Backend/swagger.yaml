@@ -101,6 +101,114 @@ paths:
           description: Invalid Fields
         '500':
           description: Internal Server Error
+  /user/accounts:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Account Module
+      summary: Get all accounts of the user
+      description: API to retrieve all accounts associated with the authenticated user
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Accounts retrieved successfully
+          schema:
+            $ref: '#/definitions/AccountsResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
+  /transactions:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Get all transactions for the current month
+      description: API for retrieving all transactions for the current month, grouped by account
+      parameters:
+        - in: query
+          name: accountId
+          type: string
+          description: ID of the user's account
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          schema:
+            $ref: '#/definitions/TransactionResponse'
+        '400':
+          description: Invalid Fields
+        '404':
+          description: Account not found
+        '500':
+          description: Internal Server Error
+
+  /transactions/{transactionId}:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Get transaction details
+      description: API for retrieving details of a specific transaction
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          type: string
+          description: ID of the transaction
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transaction details retrieved successfully
+          schema:
+            $ref: '#/definitions/TransactionDetailResponse'
+        '400':
+          description: Invalid Fields
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal Server Error
+
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Update a transaction
+      description: API for updating a specific transaction's details
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          type: string
+          description: ID of the transaction to update
+        - in: body
+          name: body
+          description: Update transaction details
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionUpdatePayload'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Transaction updated successfully
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '400':
+          description: Invalid Fields
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal Server Error
+
 securityDefinitions:
   Bearer:
     type: apiKey
@@ -156,3 +264,73 @@ definitions:
     properties:
       userName:
         type: string
+  AccountsResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      accounts:
+        type: array
+        items:
+          $ref: '#/definitions/Account'
+
+  Account:
+    type: object
+    properties:
+      accountId:
+        type: string
+        description: The unique identifier for the account
+      accountTitle:
+        type: string
+        description: The account title
+      balance:
+        type: number
+        description: The current balance of the account
+        
+  TransactionResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      transactions:
+        type: array
+        items:
+          $ref: '#/definitions/Transaction'
+  
+  TransactionDetailResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      transaction:
+        $ref: '#/definitions/Transaction'
+
+  Transaction:
+    type: object
+    properties:
+      transactionId:
+        type: string
+      date:
+        type: string
+        format: date
+      description:
+        type: string
+      amount:
+        type: number
+      balance:
+        type: number
+   
+
+  TransactionUpdatePayload:
+    type: object
+    properties:
+      
+      description:
+        type: string
+        description: Description for the transaction

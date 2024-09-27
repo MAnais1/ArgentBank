@@ -11,7 +11,7 @@ import User from "./Pages/User";
 import SignIn from "./Pages/SignIn";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import PrivateRoute from "./components/PrivateRoute.jsx";
+
 
 const store = configureStore({
   reducer: {
@@ -33,9 +33,9 @@ root.render(
           <Route
             path="/user"
             element={
-              <PrivateRoute>
+              
                 <User />
-              </PrivateRoute>
+              
             }
           />
         </Routes>

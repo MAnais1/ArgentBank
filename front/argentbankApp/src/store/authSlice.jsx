@@ -12,7 +12,7 @@ export const login = createAsyncThunk(
       body: JSON.stringify({ email, password }), // Utilisation de 'email' au lieu de 'username'
     });
     const data = await response.json();
-    console.log("API response:", data);
+   
 
     if (!response.ok) {
       throw new Error(data.message || "Failed to authenticate");
@@ -37,7 +37,7 @@ export const fetchUserData = createAsyncThunk(
     if (!response.ok) {
       throw new Error(data.message || "Failed to fetch user data");
     }
-    console.log("User data fetched:", data.body);
+   
 
     return data.body; // Retourne les données utilisateur
   }
@@ -60,9 +60,6 @@ export const updateUserName = createAsyncThunk(
     if (!response.ok) {
       throw new Error(data.message || "Failed to update userName");
     }
-    console.log("Token update", token);
-
-    console.log("Updated user data:", data.body);
     return data.body; // Retourne les nouvelles données utilisateur
   }
 );

@@ -1,9 +1,9 @@
 import PSubtitle from "../components/PSubtitle";
 import H2 from "../components/H2";
 import Feature from "../components/Feature";
-import icon1 from "../assets/icon-chat.png";
-import icon2 from "../assets/icon-money.png";
-import icon3 from "../assets/icon-security.png";
+import icon1 from "../assets/icon-chat.webp";
+import icon2 from "../assets/icon-money.webp";
+import icon3 from "../assets/icon-security.webp";
 
 function Home() {
   return (

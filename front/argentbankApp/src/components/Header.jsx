@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import logo from "../assets/argentBankLogo.png";
+import logo from "../assets/argentBankLogo.webp";
 import { Link } from 'react-router-dom'; // Utilisation de Link pour la navigation
 import {useEffect } from "react";
 import { logout, fetchUserData } from '../store/authSlice'; // L'action pour récupérer les données utilisateur
@@ -26,8 +26,6 @@ function Header() {
     }
   }, [dispatch, storedToken, profile]);  // Cette dépendance permet de ne pas rappeler la fonction si user est déjà dans le state
 
-  console.log("Token in Header:", token);
-  console.log("profile in Header:", profile);
   return (
     <nav className="main-nav">
       <Link className="main-nav-logo" to="/">
